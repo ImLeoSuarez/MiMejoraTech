@@ -6,31 +6,31 @@
   - FRs: NFR-4, NFR-5
   - Done when: `npm install` succeeds and `package.json` has all required scripts (dev, build, preview, typecheck, lint, format, format:check, test, test:watch, test:e2e)
 
-- [ ] **T02** Configure TypeScript (`tsconfig.json`) with strict mode, ES2022, bundler module resolution, DOM types
+- [x] **T02** Configure TypeScript (`tsconfig.json`) with strict mode, ES2022, bundler module resolution, DOM types
   - FRs: Constitution §3, NFR-3
   - Done when: `npm run typecheck` passes on empty project
 
-- [ ] **T03** Configure Vite (`vite.config.ts`) for vanilla TS, Sass, dev server, build output
+- [x] **T03** Configure Vite (`vite.config.ts`) for vanilla TS, Sass, dev server, build output
   - FRs: NFR-4, NFR-5
   - Done when: `npm run dev` starts server; `npm run build` produces `dist/`
 
-- [ ] **T04** Configure ESLint (`eslint.config.js`) with TypeScript, recommended rules
+- [x] **T04** Configure ESLint (`eslint.config.js`) with TypeScript, recommended rules
   - FRs: Constitution §8, §12
   - Done when: `npm run lint` passes on empty project
 
-- [ ] **T05** Configure Prettier (`.prettierrc`) with 2-space indent, single quotes, semicolons, 100-char width
+- [x] **T05** Configure Prettier (`.prettierrc`) with 2-space indent, single quotes, semicolons, 100-char width
   - FRs: Constitution §8, §12
   - Done when: `npm run format:check` passes on empty project
 
-- [ ] **T06** Configure Vitest (`vitest.config.ts`) for unit/integration tests, coverage
+- [x] **T06** Configure Vitest (`vitest.config.ts`) for unit/integration tests, coverage
   - FRs: NFR-6, Constitution §10, §12
   - Done when: `npm run test` runs (0 tests, passes)
 
-- [ ] **T07** Configure Playwright (`playwright.config.ts`) for Chromium, Firefox, WebKit; mobile + desktop viewports
+- [x] **T07** Configure Playwright (`playwright.config.ts`) for Chromium, Firefox, WebKit; mobile + desktop viewports
   - FRs: Constitution §11, §12, NFR-1, NFR-2
   - Done when: `npm run test:e2e` runs (0 tests, passes)
 
-- [ ] **T08** Create directory structure per plan (src/, data/, tests/, styles/)
+- [x] **T08** Create directory structure per plan (src/, data/, tests/, styles/)
   - FRs: Architecture
   - Done when: All directories exist and are tracked by git
 

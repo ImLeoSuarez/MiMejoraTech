@@ -64,6 +64,7 @@ package.json
 ```
 
 **FR coverage summary:**
+
 - FR-1,2,3,4,5,6,7 → `features/questionnaire/`
 - FR-8,9,10,11,12,13 → `app/`, `components/`, `features/questionnaire/validation.ts`
 - FR-14,15,16 → `features/assessment/`
@@ -91,7 +92,7 @@ interface QuestionnaireData {
   services: Service[];
   benefits: Benefit[];
   mappings: {
-    optionToService: Record<string, string[]>;  // optionId -> serviceIds
+    optionToService: Record<string, string[]>; // optionId -> serviceIds
     serviceToBenefit: Record<string, string[]>; // serviceId -> benefitIds
   };
   contactCard: ContactCard;
@@ -170,7 +171,10 @@ interface ContactCard {
     { "id": "ecommerce", "name": "Desarrollo de ecommerce y tiendas online" }
   ],
   "benefits": [
-    { "id": "incremento-ventas", "name": "Incremento de ventas y generación de clientes potenciales" },
+    {
+      "id": "incremento-ventas",
+      "name": "Incremento de ventas y generación de clientes potenciales"
+    },
     { "id": "automatizacion-tareas", "name": "Automatización de tareas repetitivas" },
     { "id": "reduccion-errores", "name": "Reducción de errores operativos" }
   ],
@@ -182,7 +186,12 @@ interface ContactCard {
     },
     "serviceToBenefit": {
       "landing-pages": ["incremento-ventas", "mayor-visibilidad", "mejor-experiencia-clientes"],
-      "automatizacion": ["automatizacion-tareas", "reduccion-errores", "ahorro-tiempo-costos", "mayor-productividad"]
+      "automatizacion": [
+        "automatizacion-tareas",
+        "reduccion-errores",
+        "ahorro-tiempo-costos",
+        "mayor-productividad"
+      ]
     }
   },
   "contactCard": {
@@ -248,6 +257,7 @@ TYPE AssessmentResult = {
 ```
 
 **Determinism guarantees (NFR-3):**
+
 - Pure function: no side effects, no DOM access, no randomness
 - Same inputs → same outputs
 - Set-based operations guarantee stable ordering (sort by original data order for display)
@@ -258,21 +268,22 @@ TYPE AssessmentResult = {
 
 > The application is a static web app (Vite). No custom CLI is required beyond npm scripts. This section documents the standard npm commands as the effective CLI.
 
-| Command | Description | Exit Code | Output |
-|---------|-------------|-----------|--------|
-| `npm install` | Install dependencies | 0 on success, 1 on failure | Stdout: progress; Stderr: errors |
-| `npm run dev` | Start Vite dev server | 0 (runs until killed), 1 on config error | Server URL, HMR logs |
-| `npm run build` | Production build (typecheck + lint + test + compile) | 0 on success, 1 on any failure | Dist/ folder, build summary |
-| `npm run preview` | Preview production build | 0 (serves until killed) | Server URL |
-| `npm run typecheck` | Run `tsc --noEmit` | 0 on success, 1 on type errors | Type errors to stderr |
-| `npm run lint` | Run ESLint | 0 on success, 1 on lint errors | Lint violations to stdout |
-| `npm run format` | Run Prettier --write | 0 on success, 1 on error | Formatted files list |
-| `npm run format:check` | Run Prettier --check | 0 if formatted, 1 if changes needed | Files needing formatting |
-| `npm run test` | Run Vitest (unit + integration) | 0 if all pass, 1 if any fail | Test results, coverage |
-| `npm run test:watch` | Vitest watch mode | 0 (runs until killed) | Live test output |
-| `npm run test:e2e` | Run Playwright E2E tests | 0 if all pass, 1 if any fail | Test report, traces |
+| Command                | Description                                          | Exit Code                                | Output                           |
+| ---------------------- | ---------------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| `npm install`          | Install dependencies                                 | 0 on success, 1 on failure               | Stdout: progress; Stderr: errors |
+| `npm run dev`          | Start Vite dev server                                | 0 (runs until killed), 1 on config error | Server URL, HMR logs             |
+| `npm run build`        | Production build (typecheck + lint + test + compile) | 0 on success, 1 on any failure           | Dist/ folder, build summary      |
+| `npm run preview`      | Preview production build                             | 0 (serves until killed)                  | Server URL                       |
+| `npm run typecheck`    | Run `tsc --noEmit`                                   | 0 on success, 1 on type errors           | Type errors to stderr            |
+| `npm run lint`         | Run ESLint                                           | 0 on success, 1 on lint errors           | Lint violations to stdout        |
+| `npm run format`       | Run Prettier --write                                 | 0 on success, 1 on error                 | Formatted files list             |
+| `npm run format:check` | Run Prettier --check                                 | 0 if formatted, 1 if changes needed      | Files needing formatting         |
+| `npm run test`         | Run Vitest (unit + integration)                      | 0 if all pass, 1 if any fail             | Test results, coverage           |
+| `npm run test:watch`   | Vitest watch mode                                    | 0 (runs until killed)                    | Live test output                 |
+| `npm run test:e2e`     | Run Playwright E2E tests                             | 0 if all pass, 1 if any fail             | Test report, traces              |
 
 **Build pipeline enforcement (NFR-12, Constitution §12):**
+
 ```
 npm run build
   ├─> npm run typecheck   (must pass)
@@ -286,18 +297,18 @@ npm run build
 
 ## 5. Justified Technical Decisions
 
-| Decision | Alternatives Considered | Rationale |
-|----------|------------------------|-----------|
-| **Vanilla TypeScript + Vite** | React, Vue, Svelte, Astro | Constitution §4, §11, NFR-4: Zero runtime deps, minimal bundle, full control. Vite provides fast DX without framework overhead. |
-| **JSON data file + runtime schema validation** | TypeScript module (`const data = {...}`), YAML, TOML | JSON is hand-editable by non-devs (FR-9), schema validates at build+runtime (FR-7). TS module would require build step for content changes; YAML/TOML add parser dep. |
-| **Single data file (questionnaire.json)** | Split files (questions.json, services.json, ...) | Simpler for content owner (FR-9), single source of truth, atomic validation. |
-| **Set-based deduplication in assessment** | Array.filter + indexOf, Map with counters | `Set` is idiomatic, O(1) lookup, guarantees uniqueness (FR-16), clear intent. |
-| **DOM-independent assessment engine** | Embedded in UI component, React hooks | Constitution §5, NFR-3: Pure functions testable without DOM, portable to SSR/Worker later. |
-| **SessionStorage for answer persistence (US-8)** | localStorage, IndexedDB, nothing | US-8 requires "continue where left off" across reloads. sessionStorage survives reload, clears on tab close (privacy-friendly, FR-21). No backend needed. |
-| **Spanish-only user content** | i18n framework (i18next, etc.) | FR-20, Constitution §9: Single language, no i18n complexity. Spanish strings in data file + constants. |
-| **BEM CSS with Sass modules** | CSS-in-JS, Tailwind, plain CSS | Constitution §4: No runtime CSS-in-JS. Sass modules provide scoping, tokens, no extra runtime. BEM = predictable class names. |
-| **Vitest + Playwright** | Jest + Cypress, uvu + Playwright | Vitest = Vite-native, fast, TypeScript-first. Playwright = best cross-browser E2E, constitution §11. |
-| **No answer persistence across sessions (FR-21)** | localStorage with expiry | Constitution §13: "Do not collect, persist, or transmit user data." Session-only is acceptable for US-8 (reload recovery) but not cross-session. |
+| Decision                                          | Alternatives Considered                              | Rationale                                                                                                                                                             |
+| ------------------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Vanilla TypeScript + Vite**                     | React, Vue, Svelte, Astro                            | Constitution §4, §11, NFR-4: Zero runtime deps, minimal bundle, full control. Vite provides fast DX without framework overhead.                                       |
+| **JSON data file + runtime schema validation**    | TypeScript module (`const data = {...}`), YAML, TOML | JSON is hand-editable by non-devs (FR-9), schema validates at build+runtime (FR-7). TS module would require build step for content changes; YAML/TOML add parser dep. |
+| **Single data file (questionnaire.json)**         | Split files (questions.json, services.json, ...)     | Simpler for content owner (FR-9), single source of truth, atomic validation.                                                                                          |
+| **Set-based deduplication in assessment**         | Array.filter + indexOf, Map with counters            | `Set` is idiomatic, O(1) lookup, guarantees uniqueness (FR-16), clear intent.                                                                                         |
+| **DOM-independent assessment engine**             | Embedded in UI component, React hooks                | Constitution §5, NFR-3: Pure functions testable without DOM, portable to SSR/Worker later.                                                                            |
+| **SessionStorage for answer persistence (US-8)**  | localStorage, IndexedDB, nothing                     | US-8 requires "continue where left off" across reloads. sessionStorage survives reload, clears on tab close (privacy-friendly, FR-21). No backend needed.             |
+| **Spanish-only user content**                     | i18n framework (i18next, etc.)                       | FR-20, Constitution §9: Single language, no i18n complexity. Spanish strings in data file + constants.                                                                |
+| **BEM CSS with Sass modules**                     | CSS-in-JS, Tailwind, plain CSS                       | Constitution §4: No runtime CSS-in-JS. Sass modules provide scoping, tokens, no extra runtime. BEM = predictable class names.                                         |
+| **Vitest + Playwright**                           | Jest + Cypress, uvu + Playwright                     | Vitest = Vite-native, fast, TypeScript-first. Playwright = best cross-browser E2E, constitution §11.                                                                  |
+| **No answer persistence across sessions (FR-21)** | localStorage with expiry                             | Constitution §13: "Do not collect, persist, or transmit user data." Session-only is acceptable for US-8 (reload recovery) but not cross-session.                      |
 
 ---
 
@@ -305,46 +316,46 @@ npm run build
 
 ### Unit Tests (`npm run test` — Vitest)
 
-| Target | Coverage | FRs |
-|--------|----------|-----|
-| `features/assessment/engine.ts` | Mapping union, benefit derivation, deduplication, empty result | FR-14, FR-15, FR-16, FR-19 |
-| `features/assessment/deduplication.ts` | Set operations, stable ordering | FR-16 |
-| `features/questionnaire/loader.ts` | Valid load, missing file, schema violation, malformed JSON | FR-1, FR-7 |
-| `features/questionnaire/validation.ts` | Single-select required, multi-select optional, empty selection | FR-10, FR-11 |
-| `features/questionnaire/schema.ts` | Valid/invalid data against JSON schema | FR-7 |
-| `app/router.ts` | Next/prev/restart, answer preservation, index bounds | FR-8, FR-12, FR-13 |
-| `app/state.ts` | Answer storage, retrieval, clear, sessionStorage sync | FR-12, US-8 |
+| Target                                 | Coverage                                                       | FRs                        |
+| -------------------------------------- | -------------------------------------------------------------- | -------------------------- |
+| `features/assessment/engine.ts`        | Mapping union, benefit derivation, deduplication, empty result | FR-14, FR-15, FR-16, FR-19 |
+| `features/assessment/deduplication.ts` | Set operations, stable ordering                                | FR-16                      |
+| `features/questionnaire/loader.ts`     | Valid load, missing file, schema violation, malformed JSON     | FR-1, FR-7                 |
+| `features/questionnaire/validation.ts` | Single-select required, multi-select optional, empty selection | FR-10, FR-11               |
+| `features/questionnaire/schema.ts`     | Valid/invalid data against JSON schema                         | FR-7                       |
+| `app/router.ts`                        | Next/prev/restart, answer preservation, index bounds           | FR-8, FR-12, FR-13         |
+| `app/state.ts`                         | Answer storage, retrieval, clear, sessionStorage sync          | FR-12, US-8                |
 
 ### Integration Tests (`npm run test` — Vitest)
 
-| Target | Scenario | FRs |
-|--------|----------|-----|
-| `tests/integration/flow.test.ts` | Full questionnaire: answer all → result → restart | FR-1–13, FR-17–19 |
-| | Back navigation restores answers | FR-12 |
-| | Skip multi-select → continue allowed | FR-11 |
-| | Block on empty single-select | FR-10 |
-| | Progress updates correctly | FR-9 |
-| `tests/integration/assessment-integration.test.ts` | Loader + engine with real data file | FR-1, FR-14–16 |
-| | Malformed data → friendly error screen | FR-7, FR-20 |
+| Target                                             | Scenario                                          | FRs               |
+| -------------------------------------------------- | ------------------------------------------------- | ----------------- |
+| `tests/integration/flow.test.ts`                   | Full questionnaire: answer all → result → restart | FR-1–13, FR-17–19 |
+|                                                    | Back navigation restores answers                  | FR-12             |
+|                                                    | Skip multi-select → continue allowed              | FR-11             |
+|                                                    | Block on empty single-select                      | FR-10             |
+|                                                    | Progress updates correctly                        | FR-9              |
+| `tests/integration/assessment-integration.test.ts` | Loader + engine with real data file               | FR-1, FR-14–16    |
+|                                                    | Malformed data → friendly error screen            | FR-7, FR-20       |
 
 ### End-to-End Tests (`npm run test:e2e` — Playwright)
 
-| Spec | User Journey | FRs |
-|------|--------------|-----|
-| `happy-path.spec.ts` | Load → answer 5 questions → see results with services/benefits/contact → restart | FR-1–21 |
-| `back-navigation.spec.ts` | Answer Q3 → back to Q2 → change answer → forward to Q3 (preserved) → result | FR-8, FR-12 |
-| `fallback.spec.ts` | Select options mapping to no services → see fallback message + contact card | FR-19, FR-18 |
+| Spec                      | User Journey                                                                     | FRs          |
+| ------------------------- | -------------------------------------------------------------------------------- | ------------ |
+| `happy-path.spec.ts`      | Load → answer 5 questions → see results with services/benefits/contact → restart | FR-1–21      |
+| `back-navigation.spec.ts` | Answer Q3 → back to Q2 → change answer → forward to Q3 (preserved) → result      | FR-8, FR-12  |
+| `fallback.spec.ts`        | Select options mapping to no services → see fallback message + contact card      | FR-19, FR-18 |
 
 ### Additional Quality Gates
 
-| Gate | Tool | Constitution |
-|------|------|--------------|
-| Type safety | `npm run typecheck` (tsc --noEmit) | §3, §12 |
-| Linting | `npm run lint` (ESLint) | §8, §12 |
-| Formatting | `npm run format:check` (Prettier) | §8, §12 |
-| Unit + integration | `npm run test` (Vitest) | §10, §12 |
-| E2E | `npm run test:e2e` (Playwright) | §11, §12 |
-| Production build | `npm run build` (Vite) | §12 |
+| Gate               | Tool                               | Constitution |
+| ------------------ | ---------------------------------- | ------------ |
+| Type safety        | `npm run typecheck` (tsc --noEmit) | §3, §12      |
+| Linting            | `npm run lint` (ESLint)            | §8, §12      |
+| Formatting         | `npm run format:check` (Prettier)  | §8, §12      |
+| Unit + integration | `npm run test` (Vitest)            | §10, §12     |
+| E2E                | `npm run test:e2e` (Playwright)    | §11, §12     |
+| Production build   | `npm run build` (Vite)             | §12          |
 
 ### Test Data Strategy
 
@@ -355,19 +366,19 @@ npm run build
 
 ### Boundary Cases to Verify
 
-| Case | Test Level |
-|------|------------|
-| Empty data file / missing file | Unit (loader) |
-| Schema validation failure (extra field, missing required) | Unit (loader/schema) |
-| All single-select unanswered → cannot proceed | Integration |
-| All multi-select skipped → valid result | Integration |
-| Duplicate service via different options → appears once | Unit (engine) |
-| Duplicate benefit via different services → appears once per service | Unit (engine) |
-| No services matched → fallback + contact card | Unit (engine), Integration, E2E |
-| Back navigation after skip → multi-select still empty | Integration |
-| Restart clears sessionStorage | Unit (state), E2E |
-| Mobile viewport (375px) — touch targets ≥44px | E2E (visual + axe) |
-| `prefers-reduced-motion` — no transitions | E2E |
+| Case                                                                | Test Level                      |
+| ------------------------------------------------------------------- | ------------------------------- |
+| Empty data file / missing file                                      | Unit (loader)                   |
+| Schema validation failure (extra field, missing required)           | Unit (loader/schema)            |
+| All single-select unanswered → cannot proceed                       | Integration                     |
+| All multi-select skipped → valid result                             | Integration                     |
+| Duplicate service via different options → appears once              | Unit (engine)                   |
+| Duplicate benefit via different services → appears once per service | Unit (engine)                   |
+| No services matched → fallback + contact card                       | Unit (engine), Integration, E2E |
+| Back navigation after skip → multi-select still empty               | Integration                     |
+| Restart clears sessionStorage                                       | Unit (state), E2E               |
+| Mobile viewport (375px) — touch targets ≥44px                       | E2E (visual + axe)              |
+| `prefers-reduced-motion` — no transitions                           | E2E                             |
 
 ---
 

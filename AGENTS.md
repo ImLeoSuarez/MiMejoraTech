@@ -7,6 +7,7 @@ MiMejoraTech is a mobile-first web application that guides users through a step-
 The application uses **vanilla TypeScript, Sass (SCSS), and native browser APIs**, without frontend frameworks or runtime UI libraries. Vite handles development and production builds. The architecture separates the questionnaire flow, assessment engine, UI components, and presentation layer to keep business rules testable and independent of the DOM.
 
 Core technologies:
+
 - TypeScript 5.x or a compatible newer version.
 - JavaScript ES2022 target, using ES modules.
 - Sass (SCSS) for styling.

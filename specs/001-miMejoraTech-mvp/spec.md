@@ -15,7 +15,7 @@ answers against a fixed service catalog, and presents a result screen with:
 
 The application is fully anonymous and static: it does **not** collect, persist, or transmit any
 user data, has no backend, no authentication, and no external integrations (per the project
-constitution §13 and §14). The contact card only *displays* the owner's contact information; the
+constitution §13 and §14). The contact card only _displays_ the owner's contact information; the
 user contacts them through their own channels.
 
 The scope of the flow is **broader digital improvement** across the full service catalog (not
@@ -90,39 +90,46 @@ Acceptance criteria use EARS notation. The application `SHALL` behave as follows
 The system `SHALL` read questions, options, their order, their selection type, labels, the service
 catalog, the benefit catalog, the `option -> service` mapping, the `service -> benefit` mapping,
 and the contact card data exclusively from the data file.
+
 - `WHEN` the questionnaire is loaded, `THE system SHALL` contain no question text, option text,
   service names, benefit names, or mapping rules hardcoded in flow logic or UI components.
 
 **FR-2 — Variable question count.**
 The system `SHALL` render the number of questions defined in the data file without assuming a
 fixed count.
+
 - `WHEN` the data file defines `N` questions, `THE system SHALL` present all `N` questions in a
   single run.
 
 **FR-3 — Question order from data.**
 The system `SHALL` present questions in the order declared in the data file.
+
 - `WHEN` the data file lists questions in a given order, `THE system SHALL` traverse them in that
   exact order.
 
 **FR-4 — Selection type from data.**
 The system `SHALL` determine each question's selection type from data (single-select required vs
 multi-select optional).
+
 - `WHEN` a question is declared `single`, `THE system SHALL` require exactly one selected option
   to continue.
 - `WHEN` a question is declared `multi`, `THE system SHALL` allow zero or more selected options.
 
 **FR-5 — Editable mapping.**
 The `option -> service` and `service -> benefit` mappings `SHALL` be defined in the data file.
+
 - `WHEN` the content owner edits a mapping in the data file, `THE system SHALL` reflect the change
   in the next result computation without a code change.
 
 **FR-6 — Contact card from data.**
 The system `SHALL` render the contact card from the data file.
+
 - `WHEN` the result screen is shown, `THE system SHALL` display the contact card fields and values
   defined in the data file (name, email, WhatsApp).
 
 **FR-7 — Malformed data handling.**
 The system `SHALL` handle an invalid or missing data file gracefully.
+
 - `WHEN` the data file is missing or fails schema validation, `THE system SHALL` display a
   user-facing Spanish error message instead of crashing, and the build/tests `SHALL` fail.
 
@@ -130,31 +137,37 @@ The system `SHALL` handle an invalid or missing data file gracefully.
 
 **FR-8 — One question per screen.**
 The system `SHALL` present exactly one question per screen.
+
 - `WHEN` the user is on a question screen, `THE system SHALL` display only that question and its
   options.
 
 **FR-9 — Progress indicator.**
 The system `SHALL` show a progress indicator.
+
 - `WHILE` the user advances through the questionnaire, `THE system SHALL` display progress that
   reflects the current question position relative to the total number of questions.
 
 **FR-10 — Validation for single-select questions.**
 The system `SHALL` block navigation forward on unanswered required questions.
+
 - `WHEN` the user attempts to continue without selecting an option on a single-select question,
   `THE system SHALL` show a Spanish validation message and prevent advancing.
 
 **FR-11 — Optional multi-select questions.**
 The system `SHALL` allow skipping multi-select questions.
+
 - `WHEN` the user selects no options on a multi-select question, `THE system SHALL` allow
   continuing and treat the question as having no selections.
 
 **FR-12 — Back navigation preserves answers.**
 The system `SHALL` preserve previously entered answers when navigating backward.
+
 - `WHEN` the user navigates back and forward again, `THE system SHALL` restore their previous
   selections.
 
 **FR-13 — Restart.**
 The system `SHALL` provide a way to restart the questionnaire.
+
 - `WHEN` the user chooses to restart, `THE system SHALL` clear all answers and return to the first
   question.
 
@@ -162,17 +175,20 @@ The system `SHALL` provide a way to restart the questionnaire.
 
 **FR-14 — Deterministic answer-to-service mapping.**
 The system `SHALL` map selected options to services deterministically.
+
 - `WHEN` the user completes the questionnaire, `THE system SHALL` compute the recommended
   services as the union of all services mapped from every selected option, using the
   `option -> service` mapping in the data file.
 
 **FR-15 — Benefit derivation.**
 The system `SHALL` derive benefits from the recommended services.
+
 - `WHEN` a service is recommended, `THE system SHALL` include all benefits mapped to that service
   via the `service -> benefit` mapping in the data file.
 
 **FR-16 — Deduplication.**
 The system `SHALL` deduplicate the result.
+
 - `WHEN` multiple selected options map to the same service, `THE system SHALL` list that service
   once; benefits `SHALL` also appear once per service.
 
@@ -180,16 +196,19 @@ The system `SHALL` deduplicate the result.
 
 **FR-17 — Result presentation.**
 The system `SHALL` present the result as a list of services with their outcomes.
+
 - `WHEN` the result is computed, `THE system SHALL` show each recommended service together with
   its associated benefits.
 
 **FR-18 — Contact card on result.**
 The system `SHALL` show the contact card on the result screen.
+
 - `WHEN` the result screen is displayed, `THE system SHALL` show the contact card with name,
   email, and WhatsApp.
 
 **FR-19 — Fallback when no services match.**
 The system `SHALL` handle the case where no services are recommended.
+
 - `WHEN` the computed result contains no services, `THE system SHALL` show a friendly Spanish
   fallback message and still display the contact card.
 
@@ -197,11 +216,13 @@ The system `SHALL` handle the case where no services are recommended.
 
 **FR-20 — Spanish user-facing content.**
 The system `SHALL` display all user-facing text in Spanish.
+
 - `WHILE` the application is in use, `THE system SHALL` show questions, options, validation
   messages, results, and the fallback message in Spanish.
 
 **FR-21 — No user data collection.**
 The system `SHALL` not collect, persist, or transmit any user data.
+
 - `WHEN` the user completes the questionnaire, `THE system SHALL` produce the result in memory
   only and `SHALL` not send or store any answer, identifier, or personal information.
 
@@ -246,7 +267,7 @@ The feature is complete when:
   preservation, malformed-data handling, and the no-services fallback.
 - End-to-end tests cover the full happy path, the back-navigation path, and the fallback path.
 - `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test`, `npm run
-  test:e2e`, and `npm run build` all pass.
+test:e2e`, and `npm run build` all pass.
 
 ## 8. Open questions
 
@@ -303,6 +324,7 @@ value, not the technical identifier.
 ### Questions (initial seed — 5 questions)
 
 **P1 — single (required):** "¿Cuál es tu principal objetivo en este momento?"
+
 - Conseguir más clientes y vender más → Landing pages, SEO técnico, Ecommerce
 - Vender mis productos por internet → Ecommerce, Landing pages, SEO técnico
 - Tener una presencia profesional en internet → Sitios corporativos, SEO técnico
@@ -311,6 +333,7 @@ value, not the technical identifier.
 - Modernizar mi empresa y crecer con tecnología → Software a medida, IA/chatbots, Integraciones
 
 **P2 — multi (optional):** "¿Qué tareas o procesos te quitan más tiempo hoy?"
+
 - Tareas manuales y repetitivas → Automatización, Software a medida
 - Buscar información dispersa → Dashboards, Optimización BD, Paneles admin
 - Herramientas que no se conectan → Integraciones, Paneles admin
@@ -318,6 +341,7 @@ value, not the technical identifier.
 - Generar reportes a mano → Dashboards, Paneles admin
 
 **P3 — single (required):** "¿Cómo está tu presencia en internet hoy?"
+
 - No tengo sitio web → Sitios corporativos, Landing pages
 - Tengo sitio web pero no genera clientes → Landing pages, SEO técnico, Optimización rendimiento
 - Tengo sitio web lento o desactualizado → Optimización rendimiento, Sitios corporativos,
@@ -326,30 +350,32 @@ value, not the technical identifier.
 - No es una prioridad ahora → (sin servicios)
 
 **P4 — multi (optional):** "¿Cómo manejas hoy la información y las herramientas de tu negocio?"
+
 - Hojas de cálculo y papel → Automatización, Software a medida, Optimización BD
 - Varias herramientas que no se comunican → Integraciones, Paneles admin
 - Software propio o antiguo → Software a medida, Mantenimiento
 - Apenas empiezo a digitalizarme → Software a medida, Sitios corporativos
 
 **P5 — single (required):** "¿Qué necesitas una vez implementada la solución?"
+
 - Solo el proyecto puntual → (sin servicios adicionales)
 - Mantenimiento y soporte continuo → Mantenimiento y soporte
 - Que escale con mi crecimiento → Software a medida, Mantenimiento, IA/chatbots
 
 ### Service → benefit mapping (initial seed)
 
-| Servicio | Beneficios asociados |
-| --- | --- |
-| Landing pages de conversión | Incremento de ventas/leads · Mayor visibilidad · Mejor experiencia clientes |
-| Sitios web corporativos | Mayor visibilidad · Mejor experiencia clientes · Modernización |
-| Ecommerce y tiendas online | Incremento de ventas/leads · Mejor experiencia clientes · Escalabilidad · Mayor visibilidad |
-| Dashboards y reportes en tiempo real | Mejor toma de decisiones · Centralización · Mayor productividad |
-| Automatización de procesos | Automatización tareas repetitivas · Reducción errores · Ahorro tiempo/costos · Mayor productividad |
-| Paneles administrativos internos | Centralización · Mayor productividad · Mejor toma de decisiones |
-| Integración entre sistemas y APIs | Integración eficiente · Automatización tareas · Reducción errores · Centralización |
-| Optimización de bases de datos | Centralización · Mejor toma de decisiones · Ahorro tiempo/costos |
-| Software y plataformas a medida | Automatización tareas · Escalabilidad · Modernización · Mayor productividad |
-| Herramientas con IA y chatbots | Mejor experiencia clientes · Automatización tareas · Ahorro tiempo/costos · Mayor productividad |
-| Optimización de rendimiento y velocidad | Mejor experiencia clientes · Mayor visibilidad |
-| SEO técnico y analítica de datos | Mayor visibilidad · Incremento de ventas/leads · Mejor toma de decisiones |
-| Mantenimiento y soporte técnico | Reducción errores · Ahorro tiempo/costos · Escalabilidad |
+| Servicio                                | Beneficios asociados                                                                               |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Landing pages de conversión             | Incremento de ventas/leads · Mayor visibilidad · Mejor experiencia clientes                        |
+| Sitios web corporativos                 | Mayor visibilidad · Mejor experiencia clientes · Modernización                                     |
+| Ecommerce y tiendas online              | Incremento de ventas/leads · Mejor experiencia clientes · Escalabilidad · Mayor visibilidad        |
+| Dashboards y reportes en tiempo real    | Mejor toma de decisiones · Centralización · Mayor productividad                                    |
+| Automatización de procesos              | Automatización tareas repetitivas · Reducción errores · Ahorro tiempo/costos · Mayor productividad |
+| Paneles administrativos internos        | Centralización · Mayor productividad · Mejor toma de decisiones                                    |
+| Integración entre sistemas y APIs       | Integración eficiente · Automatización tareas · Reducción errores · Centralización                 |
+| Optimización de bases de datos          | Centralización · Mejor toma de decisiones · Ahorro tiempo/costos                                   |
+| Software y plataformas a medida         | Automatización tareas · Escalabilidad · Modernización · Mayor productividad                        |
+| Herramientas con IA y chatbots          | Mejor experiencia clientes · Automatización tareas · Ahorro tiempo/costos · Mayor productividad    |
+| Optimización de rendimiento y velocidad | Mejor experiencia clientes · Mayor visibilidad                                                     |
+| SEO técnico y analítica de datos        | Mayor visibilidad · Incremento de ventas/leads · Mejor toma de decisiones                          |
+| Mantenimiento y soporte técnico         | Reducción errores · Ahorro tiempo/costos · Escalabilidad                                           |
